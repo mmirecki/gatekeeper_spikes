@@ -1,0 +1,31 @@
+{
+    "apiVersion": "v1",
+    "kind": "Namespace",
+    "metadata": {
+        "labels": {
+        },
+        "annotations": {
+            "a": "annotationA",
+            "b": "annotationB",
+            "c": "annotationC",
+            "openshift.io/sa.scc.mcs": "s0:c25,c0",
+            "openshift.io/sa.scc.supplemental-groups": "1000600000/10000",
+            "openshift.io/sa.scc.uid-range": "1000600000/10000"
+        },
+        "creationTimestamp": "2020-09-07T12:30:29Z",
+        "name": "mmns",
+        "resourceVersion": "14987659",
+        "selfLink": "/api/v1/namespaces/mmns",
+        "uid": "56789369-5d78-479d-a2df-23372fc7cf7b"
+    },
+    "spec": {
+        "finalizers": [
+            "kubernetes"
+        ]
+    },
+    "status": {
+        "phase": "Active"
+    }
+}
+
+

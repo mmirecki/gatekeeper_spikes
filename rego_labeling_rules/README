@@ -1,0 +1,5 @@
+To run use:
+
+opa run namespace_input
+
+And paste the contents of namespace_rule.rego
