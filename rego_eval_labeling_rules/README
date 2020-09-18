@@ -1,0 +1,5 @@
+To run use:
+
+/opt/opa eval -i namespace_input  -d namespace_rule.rego "data.regospike.ns_mutated(input)"
+
+
