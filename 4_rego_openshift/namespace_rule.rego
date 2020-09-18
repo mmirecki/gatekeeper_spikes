@@ -21,7 +21,7 @@ labels_mutated(in) = out {
 }
 
 metadata_field(in, field) = out {
-  field == "labels"
+  field == "annotations"
   out := labels_mutated(in[field])
 } else = val {
   val := in[field]
@@ -43,7 +43,3 @@ ns_mutated(in) = out {
   fields := get_all_fields(in)
   out := {f:v | fields[f]; v := ns_field(in, f)}
 }
-
-
-
-
