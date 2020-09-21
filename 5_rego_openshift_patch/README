@@ -1,0 +1,5 @@
+Export KUBCONFIG and run:
+
+Create a namespace named <name>
+
+go run ns_modify.go -namespace <name>
