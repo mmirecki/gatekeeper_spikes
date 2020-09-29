@@ -1,0 +1,25 @@
+https://github.com/stackrox/admission-controller-webhook-demo
+
+=========
+
+
+
+
+cd deployment
+
+./generate-keys.sh .
+cd ..
+
+oc create namespace webhook-demo
+
+oc -n webhook-demo create secret tls webhook-server-tls \
+    --cert "deployment/webhook-server-tls.crt" \
+    --key "deployment/webhook-server-tls.key"
+
+ca_pem_b64="$(openssl base64 -A <"deployment/ca.crt")"
+
+
+sed -e 's@${CA_PEM_B64}@'"$ca_pem_b64"'@g' <"deployment/deployment.yaml.template" > deployment.yaml
+
+oc create -f deployment.yaml
+

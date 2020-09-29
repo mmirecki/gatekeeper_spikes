@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhook-server
+  namespace: webhook-demo
+  labels:
+    app: webhook-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webhook-server
+  template:
+    metadata:
+      labels:
+        app: webhook-server
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1234
+      containers:
+      - name: server
+        image: stackrox/admission-controller-webhook-demo:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8443
+          name: webhook-api
+        volumeMounts:
+        - name: webhook-tls-certs
+          mountPath: /run/secrets/tls
+          readOnly: true
+      volumes:
+      - name: webhook-tls-certs
+        secret:
+          secretName: webhook-server-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhook-server
+  namespace: webhook-demo
+spec:
+  selector:
+    app: webhook-server
+  ports:
+    - port: 443
+      targetPort: webhook-api
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: demo-webhook
+webhooks:
+  - name: webhook-server.webhook-demo.svc
+    clientConfig:
+      service:
+        name: webhook-server
+        namespace: webhook-demo
+        path: "/mutate"
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURQekNDQWllZ0F3SUJBZ0lVYmtwdnRuby9QMk5lK0ZaTHhuVnYrYjRkV25jd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0x6RXRNQ3NHQTFVRUF3d2tRV1J0YVhOemFXOXVJRU52Ym5SeWIyeHNaWElnVjJWaWFHOXZheUJFWlcxdgpJRU5CTUI0WERUSXdNRGt5TkRBNE5UWXlPRm9YRFRJd01UQXlOREE0TlRZeU9Gb3dMekV0TUNzR0ExVUVBd3drClFXUnRhWE56YVc5dUlFTnZiblJ5YjJ4c1pYSWdWMlZpYUc5dmF5QkVaVzF2SUVOQk1JSUJJakFOQmdrcWhraUcKOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXpDM2RSR3ZZY2xsK2hYRy9BQmtxZ2hrSHVtdnVobXg4ZzJKaQpwZ2JzUnAzWVd2UkxBTWNRQkw4MGhRK3BzbDduZktFbVgzemUyamlrMEkvbVo2NFlHRkorK0FpUks1cHdpLzNzCk5hMUlxSW9pS3NZWlVqRk94RE5kRUVKWVpEcGhBeHhOV2RHSHpJeUFDajl1ZHU5b1N2LzNqaXYxdWcrM0hsRzgKSU5IN2s4aUxJMHhXZDVOcW9xVVFGYkxvZTl1QlVFOTU0dUwybkNYbmdPbUp6emtuM01TSXdad1RyRzlJQ2FBWApMMjlsOU1CQmdaY1VFejlDQkRSRjE3UkltTm1vYUg2V09xeDFxdCttSHFZNC9KaVJNQUg0QUZGVUVmb05PS0ZmCmNWbFB3ZjRRWjgwVFhyTmZnRFBQbmZ2YVl1TVNFREdVc1RkRGJlT3RFWHNpemlaUnFRSURBUUFCbzFNd1VUQWQKQmdOVkhRNEVGZ1FVaitpcHBOdWUwSXYwU0JzeWFtbzRyVzZ2c3ZFd0h3WURWUjBqQkJnd0ZvQVVqK2lwcE51ZQowSXYwU0JzeWFtbzRyVzZ2c3ZFd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBTkJna3Foa2lHOXcwQkFRc0ZBQU9DCkFRRUFjK0lsNE5uMEczQzI5MXc2MlF5TENhdmlDelFIUVc4U1BxZHRPZU9qcmpmZ29ER2tNb0Urb0tEN1paYXYKTUZTZC8xWWxGT05pazRuSXY0ZnFIdHBVL3VwSE9uaFdScnpUWlRwTTN1LzVoN2NFK0RWdmNiOFZ3RzlsaThuUQpkaUtJTEpqbHIrblRldmxVNkg1TXhaaGFkNDVjSEs5UzM2bUxIRlhJTzFDNGljZi9BeGJobHE5QWNnSEdQQWNsClVNeU5DaWtPUzFER1l3Q3ZVcmlWUm0yOGtCM2cyeUtXZXhPY3NJVkM5NnhrVmxRUklrTWQvZlBmQ0RBRHBGYVcKL05NNWtWejJZMmtmakZsRzd3NGw1T21NMzNpSVo0KzMvbEVSUklLRDk3NDdoL2k1VWtqNFlYekZ6OHF3Tkk1VgpoRVI4dnhnTUprckdxUWtTU1Q2cDhIQnBnQT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    rules:
+      - operations: [ "CREATE" ]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
